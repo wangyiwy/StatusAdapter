@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_show_loading"
+        android:title="showLoading" />
+    <item
+        android:id="@+id/menu_show_empty"
+        android:title="showEmpty" />
+    <item
+        android:id="@+id/menu_show_error"
+        android:title="showError" />
+    <item
+        android:id="@+id/menu_show_normal"
+        android:title="showNormal" />
+    <item
+        android:id="@+id/menu_add_data"
+        android:title="addData" />
+    <item
+        android:id="@+id/menu_remove_data"
+        android:title="removeData" />
+</menu>
