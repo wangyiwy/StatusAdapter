@@ -1,0 +1,2 @@
+# StatusAdapter
+![](/gif/demo.gif)
