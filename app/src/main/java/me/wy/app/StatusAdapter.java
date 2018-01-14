@@ -107,7 +107,7 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
             new RecyclerView.AdapterDataObserver() {
                 @Override
                 public void onChanged() {
-                    //自动显示空数据状态
+                    //数据为空时自动显示空数据状态
                     if (getDataItemCount() == 0 && mStatus == STATUS_NORMAL) {
                         showEmpty();
                     }

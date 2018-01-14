@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
 
     private List<String> mDataList;
+    private OnLoadMoreListener mOnLoadMoreListener;
     private MyAdapter mAdapter;
 
     @Override
@@ -30,6 +31,18 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this
                 , DividerItemDecoration.VERTICAL));
+        mOnLoadMoreListener = new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                mRecyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mOnLoadMoreListener.onLoadingFinish();
+                    }
+                }, 1000);
+            }
+        };
+        mRecyclerView.addOnScrollListener(mOnLoadMoreListener);
 
         mDataList = new ArrayList<>();
         mAdapter = new MyAdapter(mDataList);
@@ -69,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter.showError();
                 break;
             case R.id.menu_show_normal:
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 4; i++) {
                     mDataList.add("");
                 }
                 mAdapter.showNormal();
