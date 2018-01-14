@@ -13,9 +13,6 @@
         android:id="@+id/menu_show_normal"
         android:title="showNormal" />
     <item
-        android:id="@+id/menu_add_data"
-        android:title="addData" />
-    <item
         android:id="@+id/menu_remove_data"
         android:title="removeData" />
 </menu>

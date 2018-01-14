@@ -3,7 +3,6 @@ package me.wy.app;
 import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,6 @@ import android.view.ViewGroup;
  */
 
 public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
-    private static final String TAG = "StatusAdapter";
-
     //加载中
     public static final int STATUS_LOADING = 100;
     //空数据
@@ -149,21 +146,18 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
     protected RecyclerView.ViewHolder createLoadingViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(getLoadingLayout(), parent, false);
-        Log.d(TAG, "createLoadingViewHolder");
         return new StatusViewHolder(itemView);
     }
 
     protected RecyclerView.ViewHolder createEmptyViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(getEmptyLayout(), parent, false);
-        Log.d(TAG, "createEmptyViewHolder");
         return new StatusViewHolder(itemView);
     }
 
     protected RecyclerView.ViewHolder createErrorViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(getErrorLayout(), parent, false);
-        Log.d(TAG, "createErrorViewHolder");
         return new StatusViewHolder(itemView);
     }
 
@@ -188,7 +182,7 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
             @Override
             public void onClick(View v) {
                 if (mOnStatusViewListener != null) {
-                    mOnStatusViewListener.onErrorViewClick(v);
+                    mOnStatusViewListener.onEmptyViewClick(v);
                 }
             }
         });
@@ -199,7 +193,7 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
             @Override
             public void onClick(View v) {
                 if (mOnStatusViewListener != null) {
-                    mOnStatusViewListener.onEmptyViewClick(v);
+                    mOnStatusViewListener.onErrorViewClick(v);
                 }
             }
         });

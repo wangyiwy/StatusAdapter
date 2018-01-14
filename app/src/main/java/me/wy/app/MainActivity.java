@@ -66,16 +66,13 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter.showError();
                 break;
             case R.id.menu_show_normal:
-                mAdapter.showNormal();
-                break;
-            case R.id.menu_add_data:
-                mDataList.add("");
+                for (int i = 0; i < 10; i++) {
+                    mDataList.add("");
+                }
                 mAdapter.showNormal();
                 break;
             case R.id.menu_remove_data:
-                if (mDataList.size() > 0) {
-                    mDataList.remove(0);
-                }
+                mDataList.clear();
                 mAdapter.notifyDataSetChanged();
                 break;
         }
