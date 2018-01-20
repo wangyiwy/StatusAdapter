@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
 
     private List<String> mDataList;
-    private OnLoadMoreListener mOnLoadMoreListener;
     private MyAdapter mAdapter;
 
     @Override
@@ -31,23 +30,11 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this
                 , DividerItemDecoration.VERTICAL));
-        mOnLoadMoreListener = new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                mRecyclerView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mOnLoadMoreListener.onLoadingFinish();
-                    }
-                }, 1000);
-            }
-        };
-        mRecyclerView.addOnScrollListener(mOnLoadMoreListener);
 
         mDataList = new ArrayList<>();
         mAdapter = new MyAdapter(mDataList);
         //添加点击事件
-        mAdapter.setOnStatusViewClickListener(new StatusAdapter.OnStatusViewClickListener() {
+        mAdapter.setOnStatusViewClickListener(new OnStatusViewClickListener() {
             @Override
             public void onEmptyViewClick(View view) {
                 Toast.makeText(view.getContext(), "OnEmptyViewClick",
@@ -58,6 +45,23 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorViewClick(View view) {
                 Toast.makeText(view.getContext(), "OnErrorViewClick",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+        mAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                Toast.makeText(MainActivity.this,
+                        "load more", Toast.LENGTH_SHORT).show();
+                mRecyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < 4; i++) {
+                            mDataList.add("");
+                        }
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.onLoadingFinish();
+                    }
+                }, 2000);
             }
         });
         mRecyclerView.setAdapter(mAdapter);

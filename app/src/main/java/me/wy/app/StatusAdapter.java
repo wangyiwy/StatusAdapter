@@ -14,21 +14,30 @@ import android.view.ViewGroup;
  */
 
 public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
+    private String TAG = "StatusAdapter";
     //加载中
-    public static final int STATUS_LOADING = 100;
+    private static final int STATUS_LOADING = 100;
     //空数据
-    public static final int STATUS_EMPTY = 200;
+    private static final int STATUS_EMPTY = 200;
     //加载错误
-    public static final int STATUS_ERROR = 300;
+    private static final int STATUS_ERROR = 300;
     //正常状态
-    public static final int STATUS_NORMAL = 400;
+    private static final int STATUS_NORMAL = 400;
+    //加载更多
+    private static final int STATUS_LOAD_MORE = 500;
 
-    @IntDef({STATUS_LOADING, STATUS_EMPTY, STATUS_ERROR, STATUS_NORMAL})
+    @IntDef({STATUS_LOADING, STATUS_EMPTY, STATUS_ERROR,
+            STATUS_NORMAL, STATUS_LOAD_MORE})
     public @interface AdapterStatus {
     }
 
     @AdapterStatus
     private int mStatus = STATUS_LOADING;
+
+    private OnScrollListener mOnScrollListener;
+    private OnLoadMoreListener mOnLoadMoreListener;
+    private OnStatusViewClickListener mOnStatusViewListener;
+    private RecyclerView mRecyclerView;
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,6 +48,8 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
                 return createEmptyViewHolder(parent);
             case STATUS_ERROR:
                 return createErrorViewHolder(parent);
+            case STATUS_LOAD_MORE:
+                return createLoadMoreHolder(parent);
             case STATUS_NORMAL:
             default:
                 return onCreateDataViewHolder(parent, viewType);
@@ -47,12 +58,16 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (mStatus == STATUS_NORMAL) {
-            onBindDataViewHolder((VH) holder, position);
+        if (mStatus == STATUS_EMPTY) {
+            bindEmptyViewHolder(holder);
         } else if (mStatus == STATUS_ERROR) {
             bindErrorViewHolder(holder);
-        } else if (mStatus == STATUS_EMPTY) {
-            bindEmptyViewHolder(holder);
+        } else if (mStatus == STATUS_NORMAL) {
+            onBindDataViewHolder((VH) holder, position);
+        } else if (mStatus == STATUS_LOAD_MORE) {
+            if (position < getItemCount() - 1) {
+                onBindDataViewHolder((VH) holder, position);
+            }
         }
     }
 
@@ -63,6 +78,8 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
             case STATUS_EMPTY:
             case STATUS_ERROR:
                 return 1;
+            case STATUS_LOAD_MORE:
+                return getDataItemCount() + 1;
             case STATUS_NORMAL:
             default:
                 return getDataItemCount();
@@ -72,6 +89,10 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
     @Override
     public int getItemViewType(int position) {
         if (mStatus == STATUS_NORMAL) {
+            return getDataItemType(position);
+        }
+
+        if (mStatus == STATUS_LOAD_MORE && position < getItemCount() - 1) {
             return getDataItemType(position);
         }
         return mStatus;
@@ -100,7 +121,20 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
         registerAdapterDataObserver(observer);
+        if (mOnLoadMoreListener != null) {
+            mOnScrollListener = new OnScrollListener() {
+                @Override
+                protected void onLoadMore() {
+                    if (mOnLoadMoreListener != null) {
+                        mOnLoadMoreListener.onLoadMore();
+                    }
+                    showLoadMoreView();
+                }
+            };
+            recyclerView.addOnScrollListener(mOnScrollListener);
+        }
     }
 
     private final RecyclerView.AdapterDataObserver observer =
@@ -108,7 +142,8 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
                 @Override
                 public void onChanged() {
                     //数据为空时自动显示空数据状态
-                    if (getDataItemCount() == 0 && mStatus == STATUS_NORMAL) {
+                    if (getDataItemCount() == 0 && (mStatus == STATUS_NORMAL
+                            || mStatus == STATUS_LOAD_MORE)) {
                         showEmpty();
                     }
                 }
@@ -143,6 +178,11 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
         return R.layout.layout_error_view;
     }
 
+    @LayoutRes
+    protected int getLoadMoreLayout() {
+        return R.layout.layout_load_more;
+    }
+
     protected RecyclerView.ViewHolder createLoadingViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(getLoadingLayout(), parent, false);
@@ -161,20 +201,10 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
         return new StatusViewHolder(itemView);
     }
 
-    private OnStatusViewClickListener mOnStatusViewListener;
-
-    public interface OnStatusViewClickListener {
-        void onEmptyViewClick(View view);
-
-        void onErrorViewClick(View view);
-    }
-
-    public void setOnStatusViewClickListener(OnStatusViewClickListener listener) {
-        this.mOnStatusViewListener = listener;
-    }
-
-    public OnStatusViewClickListener getOnStatusViewClickListener() {
-        return mOnStatusViewListener;
+    protected RecyclerView.ViewHolder createLoadMoreHolder(ViewGroup parent) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(getLoadMoreLayout(), parent, false);
+        return new StatusViewHolder(itemView);
     }
 
     protected void bindEmptyViewHolder(RecyclerView.ViewHolder holder) {
@@ -207,5 +237,29 @@ public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends 
 
     public int getDataItemType(int position) {
         return 0;
+    }
+
+    public void showLoadMoreView() {
+        mStatus = STATUS_LOAD_MORE;
+        notifyDataSetChanged();
+        mRecyclerView.smoothScrollToPosition(getItemCount() - 1);
+    }
+
+    public void onLoadingFinish() {
+        if (mOnScrollListener != null) {
+            mOnScrollListener.onLoadingFinish();
+        }
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener listener) {
+        this.mOnLoadMoreListener = listener;
+    }
+
+    public void setOnStatusViewClickListener(OnStatusViewClickListener listener) {
+        this.mOnStatusViewListener = listener;
+    }
+
+    public OnStatusViewClickListener getOnStatusViewClickListener() {
+        return mOnStatusViewListener;
     }
 }
