@@ -1,4 +1,4 @@
-package me.wy.app;
+package me.wy.statusadapter;
 
 /**
  * author: WangYi

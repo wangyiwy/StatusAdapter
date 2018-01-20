@@ -1,4 +1,4 @@
-package me.wy.app;
+package me.wy.statusadapter;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
@@ -14,7 +14,6 @@ import android.view.ViewGroup;
  */
 
 public abstract class StatusAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
-    private String TAG = "StatusAdapter";
     //加载中
     private static final int STATUS_LOADING = 100;
     //空数据

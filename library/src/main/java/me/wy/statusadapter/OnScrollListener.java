@@ -1,4 +1,4 @@
-package me.wy.app;
+package me.wy.statusadapter;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;

@@ -16,6 +16,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.wy.statusadapter.OnLoadMoreListener;
+import me.wy.statusadapter.OnStatusViewClickListener;
+import me.wy.statusadapter.StatusAdapter;
+
 public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
 
@@ -50,16 +54,15 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                Toast.makeText(MainActivity.this,
-                        "load more", Toast.LENGTH_SHORT).show();
+                //... 加载下一页数据
                 mRecyclerView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         for (int i = 0; i < 4; i++) {
                             mDataList.add("");
                         }
-                        mAdapter.notifyDataSetChanged();
                         mAdapter.onLoadingFinish();
+                        mAdapter.notifyDataSetChanged();
                     }
                 }, 2000);
             }
@@ -174,6 +177,12 @@ public class MainActivity extends AppCompatActivity {
         protected int getErrorLayout() {
             //重写此方法或者createErrorViewHolder方法修改ErrorView
             return super.getErrorLayout();
+        }
+
+        @Override
+        protected int getLoadMoreLayout() {
+            //重写此方法或者createLoadMoreHolder方法修改ErrorView
+            return super.getLoadMoreLayout();
         }
     }
 
